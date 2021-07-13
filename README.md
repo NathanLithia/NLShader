@@ -6,8 +6,8 @@ https://www.curseforge.com/minecraft/customization/complementary-shaders
 
 
 ## Credits:
-- EminGT            - Me, the developer of Complementary
-- Capt Tatsu        - Complementary is based on his work, BSL Shaders. And he is the one that gave me the idea of publishing Complementary.
+- EminGT            - the developer of Complementary
+- Capt Tatsu        - Complementary is based on his work, BSL Shaders. And he is the one that gave EminGT the idea of publishing Complementary.
 - Chocapic13        - Previous frame reprojection, jitter offset, probably more
 - Robobo1221        - Volumetric light
 - Horizon Zero Dawn - GGX area light approximation
