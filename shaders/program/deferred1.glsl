@@ -455,7 +455,7 @@ void main() {
 	} else { /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ /**/ 
 		float NdotU = 0.0;
 
-		vec2 skyBlurOffset[4] = vec2[4](vec2( 0.0,  1.0),
+		/*vec2 skyBlurOffset[4] = vec2[4](vec2( 0.0,  1.0),
 										vec2( 0.0, -1.0),
 										vec2( 1.0,  0.0),
 										vec2(-1.0,  0.0));
@@ -467,7 +467,7 @@ void main() {
 			if (depth == 1.0) skyBlurColor += texture2DLod(colortex0, texCoordM, 0.0).rgb;
 			else skyBlurColor += color.rgb;
 		}
-		color.rgb = skyBlurColor / 5.0;
+		color.rgb = skyBlurColor / 5.0;*/
 
 		#ifdef NETHER
 			color.rgb = pow((netherCol * 2.5) / NETHER_I, vec3(2.2)) * 4;
