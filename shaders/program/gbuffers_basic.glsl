@@ -39,14 +39,14 @@ uniform float viewWidth, viewHeight;
 uniform ivec2 eyeBrightnessSmooth;
 
 uniform vec3 fogColor;
+uniform vec3 cameraPosition;
 
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowProjection;
 uniform mat4 shadowModelView;
 
-#if (defined CLOUD_SHADOW && defined OVERWORLD) || defined RANDOM_BLOCKLIGHT || (defined WATER_CAUSTICS && defined OVERWORLD)
-uniform vec3 cameraPosition;
+#if ((defined WATER_CAUSTICS || defined CLOUD_SHADOW) && defined OVERWORLD) || defined RANDOM_BLOCKLIGHT
 uniform sampler2D noisetex;
 #endif
 
@@ -108,6 +108,8 @@ float InterleavedGradientNoise() {
 //Program//
 void main() {
     vec4 albedo = color;
+
+	float selectionTwo = 0.0;
 	
 	#ifndef COMPATIBILITY_MODE
 		float albedocheck = albedo.a;
@@ -150,7 +152,8 @@ void main() {
 				albedo.rgb = selectionCol;
 			#endif
 			#if SELECTION_MODE == 2
-				albedo.a = -10.0;
+				albedo.a = 0.1;
+				selectionTwo = 1.0;
 			#endif
 			#if SELECTION_MODE == 3
 				albedo.a = 0.0;
@@ -166,11 +169,11 @@ void main() {
     /* DRAWBUFFERS:0 */
     gl_FragData[0] = albedo;
 
-	#if defined ADV_MAT && defined REFLECTION_SPECULAR
-	/* DRAWBUFFERS:0361 */
-	gl_FragData[1] = vec4(0.0, 0.0, 0.0, 1.0);
-	gl_FragData[2] = vec4(0.0, 0.0, float(gl_FragCoord.z < 1.0), 1.0);
-	gl_FragData[3] = vec4(0.0, 0.0, 0.0, 1.0);
+	#if defined ADV_MAT && defined REFLECTION_SPECULAR || SELECTION_MODE == 2
+		/* DRAWBUFFERS:0361 */
+		gl_FragData[1] = vec4(0.0, 0.0, 0.0, 1.0);
+		gl_FragData[2] = vec4(0.0, 0.0, float(gl_FragCoord.z < 1.0), 1.0);
+		gl_FragData[3] = vec4(0.0, 0.0, selectionTwo, 1.0);
 	#endif
 }
 

@@ -54,7 +54,7 @@ uniform int moonPhase;
 uniform sampler2D colortex3;
 #endif
 
-#if (defined ADV_MAT && defined REFLECTION_SPECULAR) || defined SEVEN || (defined END && defined ENDER_NEBULA) || (defined NETHER && defined NETHER_SMOKE)
+#if (defined ADV_MAT && defined REFLECTION_SPECULAR) || defined SEVEN || (defined END && defined ENDER_NEBULA) || (defined NETHER && defined NETHER_SMOKE) || SELECTION_MODE == 2
 uniform vec3 cameraPosition;
 
 uniform sampler2D colortex6;
@@ -158,6 +158,23 @@ float GetAmbientOcclusion(float z) {
 }
 #endif
 
+#if SELECTION_MODE == 2
+vec3 GetVersatileOutline(vec3 color) {
+	vec3 colorSqrt = sqrt(color.rgb);
+	float perceived = 0.1126 * colorSqrt.r + 0.4152 * colorSqrt.g + 0.2722 * colorSqrt.b;
+
+	color.rgb = color.rgb + max(normalize(color.rgb) * max(perceived * perceived, 0.001), vec3(0.0));
+	color.rgb *= 20.0;
+
+	perceived = max(1.0 - perceived * 1.3, 0.0);
+	perceived *= perceived;
+	perceived *= perceived;
+	perceived *= perceived;
+	color.rgb *= perceived;
+	return color.rgb;
+}
+#endif
+
 //Includes//
 #include "/lib/color/dimensionColor.glsl"
 #include "/lib/color/skyColor.glsl"
@@ -237,23 +254,32 @@ void main() {
 			vec3 normal = vec3(0.0), rawAlbedo = vec3(0.0);
 
 			GetMaterials(smoothness, metalness, f0, normal, rawAlbedo, texCoord);
+
+			#if SELECTION_MODE == 2
+				if (rawAlbedo.b > 0.999) {
+					color.rgb = GetVersatileOutline(color.rgb);
+				}
+			#endif
+
 			float smoothnessP = smoothness;
 			smoothness *= smoothness;
 			
 			float fresnel = pow(clamp(1.0 + dot(normal, nViewPos), 0.0, 1.0), 5.0);
 			vec3 fresnel3 = vec3(0.0);
-			
+
+			rawAlbedo *= 5.0;
+
 			#ifdef COMPBR
-				fresnel3 = mix(mix(vec3(0.02), rawAlbedo*5, metalness), vec3(1.0), fresnel);
+				fresnel3 = mix(mix(vec3(0.02), rawAlbedo, metalness), vec3(1.0), fresnel);
 				if (metalness <= 0.004 && metalness > 0.0 && skymapMod == 0.0) fresnel3 = vec3(0.0);
 				fresnel3 *= 0.25*smoothness;
 			#else
 				#if RP_SUPPORT == 4
-					fresnel3 = mix(mix(vec3(0.02), rawAlbedo*5, metalness), vec3(1.0), fresnel);
+					fresnel3 = mix(mix(vec3(0.02), rawAlbedo, metalness), vec3(1.0), fresnel);
 					fresnel3 *= 0.25*smoothness;
 				#endif
 				#if RP_SUPPORT == 3
-					fresnel3 = mix(mix(vec3(max(f0, 0.02)), rawAlbedo*5, metalness), vec3(1.0), fresnel);
+					fresnel3 = mix(mix(vec3(max(f0, 0.02)), rawAlbedo, metalness), vec3(1.0), fresnel);
 					if (f0 >= 0.9 && f0 < 1.0) {
 						fresnel3 = ComplexFresnel(fresnel, f0) * 1.5;
 						color.rgb *= 1.5;
@@ -375,6 +401,11 @@ void main() {
 					color.rgb = 3.0 * pow(vec3(timeThing1, timeThing2, timeThing3), vec3(3.2));
 				#endif
 			}
+		#else
+			#if SELECTION_MODE == 2
+				if (texture2D(colortex1, texCoord).b > 0.999)
+				color.rgb = GetVersatileOutline(color.rgb);
+			#endif
 		#endif
 		
 		#ifdef GLOWING_ENTITY_FIX

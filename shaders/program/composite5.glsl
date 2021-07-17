@@ -78,15 +78,22 @@ vec3 GetBloomTile(float lod, vec2 coord, vec2 offset) {
 }
 
 void Bloom(inout vec3 color, vec2 coord) {
-	vec3 blur1 = GetBloomTile(2.0, coord, vec2(0.0      , 0.0   ));
-	vec3 blur2 = GetBloomTile(3.0, coord, vec2(0.0      , 0.26  ));
-	vec3 blur3 = GetBloomTile(4.0, coord, vec2(0.135    , 0.26  ));
-	vec3 blur4 = GetBloomTile(5.0, coord, vec2(0.2075   , 0.26  ));
-	vec3 blur5 = GetBloomTile(6.0, coord, vec2(0.135    , 0.3325));
-	vec3 blur6 = GetBloomTile(7.0, coord, vec2(0.160625 , 0.3325));
-	vec3 blur7 = GetBloomTile(8.0, coord, vec2(0.1784375, 0.3325));
+	#ifndef ANAMORPHIC_BLOOM
+		vec3 blur1 = GetBloomTile(2.0, coord, vec2(0.0      , 0.0   ));
+		vec3 blur2 = GetBloomTile(3.0, coord, vec2(0.0      , 0.26  ));
+		vec3 blur3 = GetBloomTile(4.0, coord, vec2(0.135    , 0.26  ));
+		vec3 blur4 = GetBloomTile(5.0, coord, vec2(0.2075   , 0.26  ));
+		vec3 blur5 = GetBloomTile(6.0, coord, vec2(0.135    , 0.3325));
+		vec3 blur6 = GetBloomTile(7.0, coord, vec2(0.160625 , 0.3325));
+		vec3 blur7 = GetBloomTile(8.0, coord, vec2(0.1784375, 0.3325));
 
-	vec3 blur = (blur1 + blur2 + blur3 + blur4 + blur5 + blur6 + blur7) * 0.14;
+		vec3 blur = (blur1 + blur2 + blur3 + blur4 + blur5 + blur6 + blur7) * 0.14;
+	#else
+		vec3 blur = texture2D(colortex1, coord / 4.0).rgb;
+		blur = clamp(blur, vec3(0.0), vec3(1.0));
+		blur *= blur;
+		blur *= blur * 128.0;
+	#endif
 	
 	float bloomStrength = BLOOM_STRENGTH;
 	#ifdef NETHER
@@ -237,6 +244,8 @@ void main() {
 	vec2 filmGrainCoord = texCoord * vec2(viewWidth, viewHeight) / 512.0;
 	vec3 filmGrain = texture2D(noisetex, filmGrainCoord).rgb;
 	color += (filmGrain - 0.25) / 128.0;
+
+	//color = texture2D(colortex1, texCoord).rgb;
 	
 	/*DRAWBUFFERS:12*/
 	gl_FragData[0] = vec4(color, 1.0);

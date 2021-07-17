@@ -368,7 +368,10 @@ void main() {
 					vec3 vanillaWaterColor = pow(color.rgb, vec3(2.2)) * waterColor.a;
 					vec3 combinedWaterColor = customWaterColor * (1 - WATER_V) + vanillaWaterColor * WATER_V;
 					albedo.a = waterAlpha;
-					if (isEyeInWater == 1) albedo.a = 1.0 - pow2(pow2(1.0 - albedo.a * min(fresnel2, 1.0)));
+					if (isEyeInWater == 1) {
+						albedo.a = 1.0 - pow2(pow2(1.0 - albedo.a * min(fresnel2, 1.0)));
+						albedo.a = max(albedo.a, 0.0002);
+					}
 				#else
 					vec3 combinedWaterColor = customWaterColor;
 					albedo.a = 0.5;

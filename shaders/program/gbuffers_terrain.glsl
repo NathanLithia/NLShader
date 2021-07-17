@@ -86,7 +86,10 @@ uniform mat4 shadowProjection;
 uniform mat4 shadowModelView;
 
 uniform sampler2D texture;
+
+#if ((defined WATER_CAUSTICS || defined SNOW_MODE || defined CLOUD_SHADOW || defined RAIN_PUDDLES) && defined OVERWORLD) || defined RANDOM_BLOCKLIGHT || defined NOISY_TEXTURES || defined GENERATED_NORMALS
 uniform sampler2D noisetex;
+#endif
 
 #ifdef ADV_MAT
 	#ifndef COMPBR
@@ -112,9 +115,13 @@ uniform sampler2D noisetex;
 #endif
 
 #ifdef COLORED_LIGHT
-uniform ivec2 eyeBrightness;
+	uniform ivec2 eyeBrightness;
 
-uniform sampler2D colortex9;
+	uniform sampler2D colortex9;
+#endif
+
+#if defined NOISY_TEXTURES || defined GENERATED_NORMALS
+	uniform ivec2 atlasSize;
 #endif
 
 //Common Variables//
@@ -213,7 +220,8 @@ void main() {
 
 	#ifdef ADV_MAT
 		float smoothness = 0.0, metalData = 0.0, metalness = 0.0, f0 = 0.0, skymapMod = 0.0;
-		vec3 rawAlbedo = vec3(0.0), normalMap = vec3(0.0, 0.0, 1.0);
+		vec3 rawAlbedo = vec3(0.0);
+		vec4 normalMap = vec4(0.0, 0.0, 1.0, 1.0);
 
 		#if !defined COMPBR || defined NORMAL_MAPPING
 			vec2 newCoord = vTexCoord.st * vTexCoordAM.pq + vTexCoordAM.st;
@@ -349,11 +357,14 @@ void main() {
 					}
 				}
 
-				float packSize = 128.0;
+				#if defined NOISY_TEXTURES || defined GENERATED_NORMALS
+					float atlasRatio = atlasSize.x / atlasSize.y;
+				#endif
 			#endif
 			
 			#ifdef NORMAL_MAPPING
 				#ifdef GENERATED_NORMALS
+					float packSize = 128.0;
 					float lOriginalAlbedo = length(albedoP);
 					float fovScale = gbufferProjection[1][1] / 1.37;
 					float scale = lViewPos / fovScale;
@@ -362,16 +373,16 @@ void main() {
 					float normalClamp1 = 0.05;
 					float normalClamp2 = 0.5;
 					vec2 checkMult = 1.0 / vTexCoordAM.pq;
-					float offsetRx = 0.015625 / packSize;
-					float offsetRy = offsetRx * 2.0;
+					vec2 offsetR = vec2(0.015625 / packSize);
+					offsetR.y *= atlasRatio;
 					float difSum = 0.0;
 					if (normalMult1 > 0.0) {
 						for(int i = 0; i < 4; i++) {
 							vec2 offset = vec2(0.0, 0.0);
-							if (i == 0) offset = vec2( 0.0, offsetRy);
-							if (i == 1) offset = vec2( offsetRx, 0.0);
-							if (i == 2) offset = vec2( 0.0,-offsetRy);
-							if (i == 3) offset = vec2(-offsetRx, 0.0);
+							if (i == 0) offset = vec2( 0.0, offsetR.y);
+							if (i == 1) offset = vec2( offsetR.x, 0.0);
+							if (i == 2) offset = vec2( 0.0,-offsetR.y);
+							if (i == 3) offset = vec2(-offsetR.x, 0.0);
 							vec2 offsetCoord = newCoord + offset;
 
 							vec2 checkOffset = offset * checkMult;
@@ -410,7 +421,7 @@ void main() {
 									  tangent.z, binormal.z, normal.z);
 
 				if (normalMap.x > -0.999 && normalMap.y > -0.999)
-					newNormal = clamp(normalize(normalMap * tbnMatrix), vec3(-1.0), vec3(1.0));
+					newNormal = clamp(normalize(normalMap.xyz * tbnMatrix), vec3(-1.0), vec3(1.0));
 			#endif
 		#endif
 
@@ -426,7 +437,7 @@ void main() {
 					snowColor *= 0.85 + 0.5 * snowNoise;
 					float grassFactor = ((1.0 - abs(albedo.g - 0.3) * 4.0) - albedo.r * 2.0) * float(color.r < 0.999) * 2.0;
 					snowFactor = clamp(dot(newNormal, upVec), 0.0, 1.0);
-					snowFactor *= snowFactor;
+					//snowFactor *= snowFactor;
 					if (grassFactor > 0.0) snowFactor = max(snowFactor * 0.75, grassFactor);
 					snowFactor *= pow(lightmap.y, 16.0) * (1.0 - pow(lightmap.x + 0.1, 8.0) * 1.5);
 					snowFactor = clamp(snowFactor, 0.0, 0.85);
@@ -445,7 +456,7 @@ void main() {
 				float packSize2 = 64.0;
 				vec2 noiseCoord = vTexCoord.xy;
 				noiseCoord.xy += 0.002;
-				noiseCoord = floor(noiseCoord.xy * packSize2 * vTexCoordAM.pq * 32.0 * vec2(2.0, 1.0)) / packSize2 / 12.0;
+				noiseCoord = floor(noiseCoord.xy * packSize2 * vTexCoordAM.pq * 32.0 * vec2(2.0, 2.0 / atlasRatio)) / packSize2 / 12.0;
 				float noiseVaryingM = noiseVarying;
 				if (noiseVarying < 999.0) {
 					noiseCoord += 0.21 * (floor((worldPos.xz + cameraPosition.xz) + 0.001) + floor((worldPos.y + cameraPosition.y) + 0.001));
@@ -499,6 +510,9 @@ void main() {
 		float materialAO = 1.0;
 		#ifdef ADV_MAT
 			rawAlbedo = albedo.rgb * 0.999 + 0.001;
+			#if SELECTION_MODE == 2
+				rawAlbedo.b = min(rawAlbedo.b, 0.998);
+			#endif
 			#ifdef COMPBR
 				albedo.rgb *= ao;
 				if (metalness > 0.801) {
@@ -518,7 +532,7 @@ void main() {
 					doParallax = float(NdotL > 0.0);
 				#endif
 				if (doParallax > 0.5) {
-					parallaxShadow = GetParallaxShadow(parallaxFade, newCoord, lightVec, tbnMatrix, parallaxDepth);
+					parallaxShadow = GetParallaxShadow(parallaxFade, newCoord, lightVec, tbnMatrix, parallaxDepth, normalMap.a);
 				}
 			#endif
 

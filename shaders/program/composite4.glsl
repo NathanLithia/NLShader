@@ -29,7 +29,7 @@ float weight[7] = float[7](1.0, 6.0, 15.0, 20.0, 15.0, 6.0, 1.0);
 
 //Common Functions//
 vec3 BloomTile(float lod, vec2 offset) {
-	vec3 bloom = vec3(0.0), temp = vec3(0.0);
+	vec3 bloom = vec3(0.0);
 	float scale = pow(2.0, lod);
 	vec2 coord = (texCoord - offset) * scale;
 	float padding = 0.5 + 0.005 * scale;
@@ -39,7 +39,7 @@ vec3 BloomTile(float lod, vec2 offset) {
 			for(int j = -3; j <= 3; j++) {
 				float wg = weight[i + 3] * weight[j + 3];
 				vec2 pixelOffset = vec2(i * pw, j * ph);
-				vec2 bloomCoord = (texCoord - offset + pixelOffset*1.0) * scale;
+				vec2 bloomCoord = (texCoord - offset + pixelOffset) * scale;
 				bloom += texture2D(colortex0, bloomCoord).rgb * wg;
 			}
 		}
@@ -51,22 +51,46 @@ vec3 BloomTile(float lod, vec2 offset) {
 
 //Program//
 void main() {
-	#if !defined NETHER
-		vec3 blur = BloomTile(2.0, vec2(0.0      , 0.0   ));
-			blur += BloomTile(3.0, vec2(0.0      , 0.26  ));
-			blur += BloomTile(4.0, vec2(0.135    , 0.26  ));
-			blur += BloomTile(5.0, vec2(0.2075   , 0.26  )) * 0.8;
-			blur += BloomTile(6.0, vec2(0.135    , 0.3325)) * 0.8;
-			blur += BloomTile(7.0, vec2(0.160625 , 0.3325)) * 0.6;
-			blur += BloomTile(8.0, vec2(0.1784375, 0.3325)) * 0.4;
+	#ifndef ANAMORPHIC_BLOOM
+		#if !defined NETHER
+			vec3 blur = BloomTile(2.0, vec2(0.0      , 0.0   ));
+				blur += BloomTile(3.0, vec2(0.0      , 0.26  ));
+				blur += BloomTile(4.0, vec2(0.135    , 0.26  ));
+				blur += BloomTile(5.0, vec2(0.2075   , 0.26  )) * 0.8;
+				blur += BloomTile(6.0, vec2(0.135    , 0.3325)) * 0.8;
+				blur += BloomTile(7.0, vec2(0.160625 , 0.3325)) * 0.6;
+				blur += BloomTile(8.0, vec2(0.1784375, 0.3325)) * 0.4;
+		#else
+			vec3 blur = BloomTile(2.0, vec2(0.0      , 0.0   ));
+				blur += BloomTile(3.0, vec2(0.0      , 0.26  ));
+				blur += BloomTile(4.0, vec2(0.135    , 0.26  ));
+				blur += BloomTile(5.0, vec2(0.2075   , 0.26  ));
+				blur += BloomTile(6.0, vec2(0.135    , 0.3325));
+				blur += BloomTile(7.0, vec2(0.160625 , 0.3325));
+				blur += BloomTile(8.0, vec2(0.1784375, 0.3325)) * 0.6;
+		#endif
 	#else
-		vec3 blur = BloomTile(2.0, vec2(0.0      , 0.0   ));
-			blur += BloomTile(3.0, vec2(0.0      , 0.26  ));
-			blur += BloomTile(4.0, vec2(0.135    , 0.26  ));
-			blur += BloomTile(5.0, vec2(0.2075   , 0.26  ));
-			blur += BloomTile(6.0, vec2(0.135    , 0.3325));
-			blur += BloomTile(7.0, vec2(0.160625 , 0.3325));
-			blur += BloomTile(8.0, vec2(0.1784375, 0.3325)) * 0.6;
+		vec3 bloom = vec3(0.0);
+		float scale = 4.0;
+		vec2 coord = texCoord * scale;
+		float padding = 0.52;
+
+		if (abs(coord.x - 0.5) < padding && abs(coord.y - 0.5) < padding) {
+			for(int i = -27; i <= 27; i++) {
+				for(int j = -3; j <= 3; j++) {
+					float wg = pow(0.9, abs(2.0 * i) + 1.0);
+					float hg = weight[j + 3];
+					hg *= hg / 400.0;
+					vec2 pixelOffset = vec2(i * pw, j * ph);
+					vec2 bloomCoord = (texCoord + pixelOffset) * scale;
+					bloom += texture2D(colortex0, bloomCoord).rgb * wg * hg;
+				}
+			}
+			bloom /= 128.0;
+		}
+
+		vec3 blur = pow(bloom / 128.0, vec3(0.25));
+		blur = clamp(blur, vec3(0.0), vec3(1.0));
 	#endif
 
     /* DRAWBUFFERS:1 */

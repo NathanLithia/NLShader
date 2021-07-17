@@ -243,7 +243,7 @@ void GetLighting(inout vec3 albedo, inout vec3 shadow, inout vec3 lightAlbedo, v
 				handLight = 1.0;
 			#endif
 		if (heldItemId == 12002 || heldItemId2 == 12002) // Optifine Item Emissives
-			handLight = min(handLight + 0.5, 1.0);
+			handLight = min(handLight + 0.65, 1.0);
 
 		float handLightFactor = 1.0 - min(DYNAMIC_LIGHT_DISTANCE * handLight, lViewPos) / (DYNAMIC_LIGHT_DISTANCE * handLight);
 		#ifdef GBUFFERS_WATER
@@ -293,6 +293,9 @@ void GetLighting(inout vec3 albedo, inout vec3 shadow, inout vec3 lightAlbedo, v
 				}
 				else if (lightVarying < 4.5) { // Sea Lantern, Beacon, End Rod
 					lightAlbedo = albedo * vec3(0.6, 0.85, 1.0);
+				}
+				else if (lightVarying < 5.5) { // Sea Pickles
+					lightAlbedo = vec3(0.2, 0.9, 1.0);
 				}
 			}
 			//if (lViewPos > 16.0) lightAlbedo = vec3(0.0);
@@ -364,10 +367,9 @@ void GetLighting(inout vec3 albedo, inout vec3 shadow, inout vec3 lightAlbedo, v
 					causticfactor *= 1.0 - pow2(pow2((1.0 - skyLightMap)));
 					causticfactor *= 10.0;
 
-					causticcol *= causticcol;
-					causticcol *= causticcol;
-					albedoCaustic = albedo.rgb * mix(underwaterColor.rgb * 20.0, causticcol * 1000.0, sunVisibility);
-					causticcol *= 150.0;
+					causticcol = sqrt(waterColor.rgb * sqrt(UNDERWATER_I));
+					albedoCaustic = albedo.rgb * causticcol * 3.0;
+					causticcol *= 0.53;
 				} else {
 			#endif
 					causticfactor *= shadow.g * NdotL * (1.0 - rainStrengthS);

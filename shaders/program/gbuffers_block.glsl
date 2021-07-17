@@ -13,6 +13,10 @@ varying vec3 sunVec, upVec;
 
 varying vec4 color;
 
+#if MC_VERSION >= 11700
+	varying float fullLightmap;
+#endif
+
 #ifdef ADV_MAT
 	#if defined PARALLAX || defined SELF_SHADOW
 		varying float dist;
@@ -57,6 +61,7 @@ uniform float viewWidth, viewHeight;
 uniform ivec2 eyeBrightnessSmooth;
 
 uniform vec3 fogColor;
+uniform vec3 cameraPosition;
 
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
@@ -69,8 +74,7 @@ uniform sampler2D texture;
 uniform float far;
 #endif
 
-#if ((defined WATER_CAUSTICS || defined SNOW_MODE || defined CLOUD_SHADOW) && defined OVERWORLD) || defined RANDOM_BLOCKLIGHT
-uniform vec3 cameraPosition;
+#if ((defined WATER_CAUSTICS || defined CLOUD_SHADOW) && defined OVERWORLD) || defined RANDOM_BLOCKLIGHT
 uniform sampler2D noisetex;
 #endif
 
@@ -162,7 +166,8 @@ void main() {
 
 	#ifdef ADV_MAT
 		float smoothness = 0.0, metalData = 0.0, metalness = 0.0, f0 = 0.0;
-		vec3 rawAlbedo = vec3(0.0), normalMap = vec3(0.0, 0.0, 1.0);
+		vec3 rawAlbedo = vec3(0.0);
+		vec4 normalMap = vec4(0.0, 0.0, 1.0, 1.0);
 
 		#if !defined COMPBR || defined NORMAL_MAPPING
 			vec2 newCoord = vTexCoord.st * vTexCoordAM.pq + vTexCoordAM.st;
@@ -228,7 +233,7 @@ void main() {
 									  tangent.z, binormal.z, normal.z);
 
 				if (normalMap.x > -0.999 && normalMap.y > -0.999)
-					newNormal = clamp(normalize(normalMap * tbnMatrix), vec3(-1.0), vec3(1.0));
+					newNormal = clamp(normalize(normalMap.xyz * tbnMatrix), vec3(-1.0), vec3(1.0));
 			#endif
 		#endif
 
@@ -290,6 +295,9 @@ void main() {
 		float materialAO = 1.0;
 		#ifdef ADV_MAT
 			rawAlbedo = albedo.rgb * 0.999 + 0.001;
+			#if SELECTION_MODE == 2
+				rawAlbedo.b = min(rawAlbedo.b, 0.998);
+			#endif
 			#ifdef COMPBR
 				albedo.rgb *= ao;
 				if (metalness > 0.80) {
@@ -310,7 +318,7 @@ void main() {
 				#endif
 				
 				if (doParallax > 0.5) {
-					parallaxShadow = GetParallaxShadow(parallaxFade, newCoord, lightVec, tbnMatrix, parallaxDepth);
+					parallaxShadow = GetParallaxShadow(parallaxFade, newCoord, lightVec, tbnMatrix, parallaxDepth, normalMap.a);
 					NdotL *= parallaxShadow;
 				}
 			#endif
@@ -318,7 +326,10 @@ void main() {
 
 		#if MC_VERSION >= 11500 && !defined COMPATIBILITY_MODE
 			if (color.r + color.g + color.b <= 2.99 && signBlockEntity > 0.5) {
-				albedo.rgb *= 10.0;
+				#if MC_VERSION >= 11700
+					if (fullLightmap < 0.5)
+				#endif
+				albedo.rgb *= 8.0;
 				NdotL = 0.0;
 			}
 			if (blockEntityId == 11008) { // Beacon Beam
@@ -472,6 +483,10 @@ void main() {
     
 	lmCoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	lmCoord = clamp(lmCoord, vec2(0.0), vec2(1.0));
+	#if MC_VERSION >= 11700
+		fullLightmap = 0.0;
+		if (lmCoord.x > 0.96) fullLightmap = 1.0;
+	#endif
 	lmCoord.x -= max(lmCoord.x - 0.825, 0.0) * 0.75;
 
 	normal = normalize(gl_NormalMatrix * gl_Normal);

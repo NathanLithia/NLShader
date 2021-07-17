@@ -1,6 +1,6 @@
 float waterH(vec3 pos) {
 	float noise = 0;
-	vec2 wind = vec2(frametime) * 0.35 * WATER_SPEED;
+	vec2 wind = vec2(frametime) * 0.25 * WATER_SPEED;
 	float yFactor = 0.5;
 	noise+= texture2D(noisetex,(pos.xz + wind - pos.y * yFactor) / 1024.0 * 1.1).r * 1.0;
 	noise+= texture2D(noisetex,(pos.xz - wind - pos.y * yFactor) / 1024.0 * 1.5).r * 0.8;

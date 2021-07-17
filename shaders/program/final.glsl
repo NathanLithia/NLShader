@@ -27,7 +27,7 @@ uniform float viewWidth, viewHeight;
 //Optifine Constants//
 /*
 const int colortex0Format = R11F_G11F_B10F; //main
-const int colortex1Format = RGB8; 			//raw albedo & raw translucent & water mask & bloom
+const int colortex1Format = RGB8; 			//raw albedo & versatile selection mask & raw translucent & water mask & bloom
 const int colortex2Format = RGBA16;		    //temporal stuff
 const int colortex3Format = RGB8; 			//specular & skymapMod
 const int gaux1Format = R8; 				//half-res ao

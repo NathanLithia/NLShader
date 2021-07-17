@@ -67,7 +67,7 @@
 		float stretchFactor = 2.5;
 		float coordFactor = 0.009375;
 
-		if (NdotU > 0.025) {
+		if (NdotU > 0.025) { //duplicate 78634
 			vec3 wpos = normalize((gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz);
 			for(int i = 0; i < sampleCount; i++) {
 				if (cloud > 0.99) break;
@@ -114,7 +114,7 @@
 			cloudUpColor *= 1.0 + scattering * (1.0 + pow2(rainStrengthS) * 4.0);
 			cloudUpColor += max(meColor, vec3(0.0));
 
-			vec3 cloudDownColor = skyColCustom * 0.175 * sunVisibility4;
+			vec3 cloudDownColor = skyColor * skyColor * 0.225 * sunVisibility * skyMult;
 			cloudcolor = mix(cloudDownColor, cloudUpColor, cloudGradient);
 
 			cloud *= pow2(pow2(1.0 - exp(- (10.0 - 8.2 * rainStrengthS) * NdotU))); //duplicate 78634

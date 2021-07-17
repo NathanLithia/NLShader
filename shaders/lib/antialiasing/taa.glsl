@@ -32,32 +32,38 @@ void NeighbourhoodClamping(vec3 color, inout vec3 tempColor, vec2 view, float de
 void TAA(inout vec3 color, inout vec4 temp) {
 	float depth = texture2D(depthtex1, texCoord).r;
 	float noTAA = texture2D(colortex7, texCoord).r;
-	if (depth < 0.56 || noTAA > 0.5) {
+	if (depth < 0.56 || noTAA > 0.5) { // Fixes entities and hand
 		return;
 	}
+
 	vec3 coord = vec3(texCoord, depth);
 	vec2 prvCoord = Reprojection(coord);
 	
 	vec2 view = vec2(viewWidth, viewHeight);
 	vec3 tempColor = texture2D(colortex2, prvCoord).gba;
-	if (tempColor == vec3(0.0)) {
+	if (tempColor == vec3(0.0)) { // Fixes the first frame
 		temp = vec4(temp.r, color);
 		return;
 	}
+
 	float edge = 0.0;
 	NeighbourhoodClamping(color, tempColor, 1.0 / view, depth, edge);
 	
 	vec2 velocity = (texCoord - prvCoord.xy) * view;
+
 	float blendFactor = float(prvCoord.x > 0.0 && prvCoord.x < 1.0 &&
 	                          prvCoord.y > 0.0 && prvCoord.y < 1.0);
 	#if AA == 2 || AA == 3
 		float blendVariable = 0.5;
 		float blendConstant = 0.4;
+		float blendMinimum = 0.2;
 	#elif AA == 4
 		float blendVariable = 0.3;
 		float blendConstant = 0.6;
+		float blendMinimum = 0.6;
 	#endif
-	blendFactor *= exp(-length(velocity * (2.0 + edge * 100.0))) * blendVariable + blendConstant;
+	float lengthVelocity = length(velocity * 2.0);
+	blendFactor *= max(exp(-lengthVelocity) * blendVariable + blendConstant - lengthVelocity * edge * 20.0, blendMinimum);
 	
 	color = mix(color, tempColor, blendFactor);
 	temp = vec4(temp.r, color);

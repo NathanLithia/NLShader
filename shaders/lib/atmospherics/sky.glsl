@@ -11,7 +11,7 @@ vec3 GetSkyColor(vec3 lightCol, float NdotU, vec3 nViewPos, bool isReflection) {
     float absNdotU = abs(NdotU);
 
     vec3 skyColor2 = skyColor * skyColor;
-    vec3 sky = mix(skyColor * 0.6, skyColor2, absNdotU) * (0.5 + 0.5 * sunVisibility);
+    vec3 sky = mix(skyColor * 0.6, skyColor2, absNdotU) * (0.5 + 0.5 * sunVisibility) * skyMult;
 
     #ifdef ONESEVEN
         sky = vec3(0.812, 0.741, 0.674) * 0.5;
@@ -56,55 +56,10 @@ vec3 GetSkyColor(vec3 lightCol, float NdotU, vec3 nViewPos, bool isReflection) {
     vec3 weatherSky = weatherCol * weatherCol;
     weatherSky *= GetLuminance(ambientCol / (weatherSky)) * 1.4;
     weatherSky *= mix(SKY_RAIN_NIGHT, SKY_RAIN_DAY, sunVisibility);
-    weatherSky = max(weatherSky, skyColor2 * 0.75);
+    weatherSky = max(weatherSky, skyColor2 * 0.75); // Lightning Sky Color
     finalSky = mix(finalSky, weatherSky, rainStrengthS) * mult;
 
-    return pow(finalSky, vec3(1.125));
+    finalSky = pow(finalSky, vec3(1.125));
+
+    return finalSky;
 }
-
-/*
-vec3 GetTestSkyColor(vec3 lightCol, float NdotU, vec3 nViewPos, bool isReflection) {
-    float timeBrightnessInv = 1.0 - timeBrightness;
-    float timeBrightnessInv2 = timeBrightnessInv * timeBrightnessInv;
-    float timeBrightnessInv4 = timeBrightnessInv2 * timeBrightnessInv2;
-    float SdotU = dot( sunVec,upVec);
-    float SdotUabs = abs(SdotU);
-    float invSdotUabs = 1.0 - SdotUabs;
-    float invSdotUabs2 = invSdotUabs * invSdotUabs;
-    float invSdotUabs4 = invSdotUabs2 * invSdotUabs2;
-    float invSdotUabs8 = invSdotUabs4 * invSdotUabs4;
-    float invSdotUabsF = smoothstep(0.0, 1.0, invSdotUabs2);
-    float invSdotUabsFN = SdotU > 0.0 ? 1.0 : invSdotUabsF;
-    float NdotUabs = abs(NdotU);
-    float invNdotUabs = 1.0 - NdotUabs;
-    float invNdotUabs2 = invNdotUabs * invNdotUabs;
-    float invNdotUabs4 = invNdotUabs2 * invNdotUabs2;
-    float invNdotUabs8 = invNdotUabs4 * invNdotUabs4;
-    float invNdotUabs16 = invNdotUabs8 * invNdotUabs8;
-    float invNdotUabsF = smoothstep(0.0, 1.0, invNdotUabs4);
-    float NdotS = dot(nViewPos, sunVec);
-    float NdotSM = (1.0 + NdotS) * 0.5;
-    vec3 sqrtLight = sqrt(lightCol);
-    vec3 lightSunset = lightEvening * lightEvening;
-         lightSunset *= (1.0 + sunVisibility) * NdotSM * NdotSM * invSdotUabsFN * (timeBrightnessInv4);
-    vec3 skyNight = ambientNight * ambientNight * 5.0 + 0.2 * skyColCustom * invSdotUabsFN;
-
-    vec3 topSky = skyColor * skyColor + skyNight;
-    topSky *= 0.5 + 2.0 * invNdotUabs2;
-
-    vec3 middleSky = mix(lightCol, lightSunset, length(lightSunset) * 0.8) * 3.0 + skyNight;
-
-    vec3 downSky = skyColor * (1.25 + 1.0 * invNdotUabs2) * lightCol * 1.5 + skyNight * 2.0;
-
-    float NdotUM = 1.0 - invNdotUabs8;
-    NdotUM = NdotUM * (1.0 - 2.0 * float(NdotU < 0.0));
-    NdotUM = (NdotUM + 1.0) * 0.5;
-    vec3 topDownSky = mix(downSky, topSky, NdotUM);
-
-    vec3 finalSky = mix(topDownSky, middleSky, invNdotUabs8 * 0.4);
-    
-
-    return finalSky * 0.1;
-    //return vec3(1.0, 0.0, 1.0);
-}
-*/

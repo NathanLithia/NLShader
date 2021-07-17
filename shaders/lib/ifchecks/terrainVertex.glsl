@@ -6,7 +6,7 @@ if (mc_Entity.x ==  31 || mc_Entity.x ==   6 || mc_Entity.x ==  59 ||
     #endif
     mat = 1.0, lmCoord.x = clamp(lmCoord.x, 0.0, 0.87), quarterNdotUfactor = 0.0;
     
-if (mc_Entity.x == 18 || mc_Entity.x == 9600 || mc_Entity.x == 9100 || mc_Entity.x == 10231) // Leaves, Vine, Lily Pad, Cave Vines
+if (mc_Entity.x == 18 || mc_Entity.x == 9600 || mc_Entity.x == 9100) // Leaves, Vine, Lily Pad
     #ifdef COMPBR
         specR = 12.065, specG = 0.003,
     #endif
@@ -297,7 +297,10 @@ if (lmCoord.x > 0.85) { // Reduce lightmap
                             mat = 114.0;
                         else if (mc_Entity.x == 10230) // Crafting Table
                             specR = 24.06;
-                        else if (mc_Entity.x == 10231) // Cave Vines (Hanging Glow Berries)
+                        else if (mc_Entity.x == 10231) // Cave Vines With Glow Berries
+                            #ifdef COLORED_LIGHT
+                                lightVarying = 3.0,
+                            #endif
                             specB = 8.3, mat = 20000.0, color.rgb = vec3(1.2, -5.0, 0.0),
                             mipmapDisabling = 1.0, lmCoord.x = clamp(lmCoord.x, 0.0, 0.87);
                     }
@@ -504,9 +507,15 @@ if (lmCoord.x > 0.85) { // Reduce lightmap
                             #endif
                             specB = 8.004, quarterNdotUfactor = 0.0;
                         else if (mc_Entity.x == 11027) // Sea Pickle
+                            #ifdef COLORED_LIGHT
+                                lightVarying = 5.0,
+                            #endif
                             specB = 12.0003, lmCoord.x = min(lmCoord.x, 0.885), mipmapDisabling = 1.0;
-                        else if (mc_Entity.x == 11028) // Empty
-                            specR = 0.0;
+                        else if (mc_Entity.x == 11028) // Lit Candles
+                            #ifdef COLORED_LIGHT
+                                lightVarying = 3.0,
+                            #endif
+                            lmCoord.x = clamp(lmCoord.x, 0.0, 0.87);
                     }
                 } else {
                     if (mc_Entity.x < 11032.5) {
@@ -556,14 +565,16 @@ if (lmCoord.x > 0.85) { // Reduce lightmap
         lmCoord.x = clamp(lmCoord.x, 0.0, 0.87);
 
     // Mipmap Fix
-    if (mc_Entity.x == 880 || mc_Entity.x == 76 || mc_Entity.x == 98 || mc_Entity.x == 95)
-        mipmapDisabling = 1.0;
+    /*if (mc_Entity.x == 98465498894)
+        mipmapDisabling = 1.0; */
 #endif
 
 #if !defined COMPBR && defined COLORED_LIGHT
     if (mc_Entity.x < 11012.5) {
         if (mc_Entity.x < 11005.5) {
-            if (mc_Entity.x == 11001) // Glowstone
+            if (mc_Entity.x == 10231) // Cave Vines With Glow Berries
+                lightVarying = 3.0;
+            else if (mc_Entity.x == 11001) // Glowstone
                 lightVarying = 3.0;
             else if (mc_Entity.x == 11002) // Sea Lantern
                 lightVarying = 4.0;
@@ -600,6 +611,10 @@ if (lmCoord.x > 0.85) { // Reduce lightmap
                 lightVarying = 3.0;
             else if (mc_Entity.x == 11025) // Soul Campfire
                 lightVarying = 2.0;
+            else if (mc_Entity.x == 11027) // Sea Pickle
+                lightVarying = 5.0;
+            else if (mc_Entity.x == 11028) // Lit Candles
+                lightVarying = 3.0;
             else if (mc_Entity.x == 11032) // Redstone Ore Lit
                 lightVarying = 2.0;
         }

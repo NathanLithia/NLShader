@@ -22,7 +22,7 @@ screen.WORLD_CURVATURE_CONFIG.comment=Settings about the world curvature effect.
 screen.MATERIALS=Materials
 screen.MATERIALS.comment=Settings about advanced materials.
 screen.COMPBR=Integrated PBR Settings
-screen.COMPBR.comment=Settings about the integrated advanced material properties. §e[*]§r Settings here only work if RP Support is set to Integrated Vanilla+
+screen.COMPBR.comment=Settings about the integrated advanced material properties. §e[*]§r Settings here only work if RP Support is set to Integrated PBR+
 screen.COMPBRMISC=More Integrated PBR Settings
 screen.COMPBRMISC.comment=Rest of the Integrated PBR settings.
 screen.EMISSIVES=Emissive Settings
@@ -107,8 +107,8 @@ screen.RAIN_REF_CONFIG.comment=Settings about rain puddles.
 screen.AURORA_CONFIG=Aurora Borealis Settings
 screen.AURORA_CONFIG.comment=Settings about aurora borealis.
 
-screen.SKY_INTENSITY=Overworld Sky Intensity
-screen.SKY_INTENSITY.comment=Settings for tweaking the sky intensity.
+screen.SKY_COLOR=Overworld Sky Color
+screen.SKY_COLOR.comment=Settings for tweaking the overworld sky color.
 
 screen.NIGHT_SKY=Night Sky Settings
 screen.NIGHT_SKY.comment=Settings about the sky during night.
@@ -120,6 +120,16 @@ screen.NEBULA_CONFIG.comment=Settings about the ender nebula.
 option.SECRET=§d§l§n§oSuper Secret Settings
 option.SECRET.comment=You have entered the Super Secret Settings.
 value.SECRET.0=
+
+option.COMPATIBILITY_MODE=Compatibility Mode
+option.COMPATIBILITY_MODE.comment=Changes lots of things to make the shaderpack more compatible, especially with mods. Force-disables Integrated PBR+ features
+
+option.RP_SUPPORT=RP Support
+option.RP_SUPPORT.comment=Decides how resource packs are handled. §bIntegrated PBR+:§r Internal PBR and extra effects; only works perfectly with vanilla or vanilla-colored textures. §aBasic:§r PBR is disabled, which means high fps. §dPBR:§r Specular and normal maps are used; a PBR resource pack is required, choose labPBR or SEUSPBR depending on what your PBR resource pack supports.
+value.RP_SUPPORT.1=§bIntegrated PBR+
+value.RP_SUPPORT.2=§aBasic (PBR Disabled)
+value.RP_SUPPORT.3=§dlabPBR (RP Required)
+value.RP_SUPPORT.4=§dSEUS PBR (RP Required)
 
 option.AO_QUALITY=SSAO Quality
 option.AO_QUALITY.comment=Adjusts screen space ambient occlusion quality. §e[*]§r Low quality is internally switched to Medium if TAA is off.
@@ -260,13 +270,13 @@ option.SHOW_RAY_TRACING=Highlight Ray Tracing
 option.SHOW_RAY_TRACING.comment=Highlights ray-traced pixels. Doesn't include water since it's always ray-traced.
 
 option.METALLIC_WORLD=Metallic World
-option.METALLIC_WORLD.comment=Makes all blocks metallic. §e[*]§r RP Support must be set to Integrated Vanilla+
+option.METALLIC_WORLD.comment=Makes all blocks metallic. §e[*]§r RP Support must be set to Integrated PBR+
 
 option.WAVING_EVERYTHING=Waving Everything
 option.WAVING_EVERYTHING.comment=Makes everything wavy.
 
-option.SQUARE_BLUR=Square Blur
-option.SQUARE_BLUR.comment=Adds a square bloom effect to the screen, used for taking Complementary's logo picture. §c[-]§r Performance impact.
+option.ANAMORPHIC_BLOOM=Anamorphic Bloom
+option.ANAMORPHIC_BLOOM.comment=Changes the bloom calculation to simulate some cameras. §c[-]§r Performance impact.
 
 option.FOG1_CHECK=Discard Behind Fog
 option.FOG1_CHECK.comment=Discards everything behind the border fog. The goal was to improve performance but it actually makes it worse in some situations.
@@ -480,7 +490,7 @@ option.LENS_FLARE_STRENGTH=Lens Flare Strength
 option.LENS_FLARE_STRENGTH.comment=Adjusts lens flare intensity.
 
 option.AA=Anti-aliasing
-option.AA.comment=Enables anti-aliasing. FXAA : Applies some smart blur to aliased edges. LiteTAA: Uses previous frames to filter the next one. IntenseTAA : Good anti-aliasing and filtering, but causes very high amount of flickering in some situations. §a[+]§r TAA is needed for some effects to not be noisy, do not disable it unless you dislike smooth image
+option.AA.comment=Enables anti-aliasing. FXAA : Applies some smart blur to aliased edges. LiteTAA: Uses previous frames to filter the next one. IntenseTAA : Good anti-aliasing and filtering, but causes more flickering and artifacts. §a[+]§r TAA is needed for some effects to not be noisy, do not disable it unless you dislike smooth image
 value.AA.0=§cOFF
 value.AA.1=§cFXAA
 value.AA.2=LiteTAA
@@ -716,11 +726,11 @@ option.AURORA_DOWN_B=Lower Section - Blue
 option.AURORA_DOWN_I=Lower Section - Intensity
 
 option.SELECTION_MODE=Selection Mode
-option.SELECTION_MODE.comment=Changes the outline that appears when looking at a block. §c[-]§r Might not work on some devices or Minecraft versions. Default: Recommended for mod compatibility. Select Color: Choose the color using the sliders here. Alternative: Varying color depending on the block.
+option.SELECTION_MODE.comment=Changes the outline that appears when looking at a block. §c[-]§r Might not work on some devices or Minecraft versions. Default: Recommended for mod compatibility. Select Color: Choose the color using the sliders here. Versatile: Varying color depending on the block.
 value.SELECTION_MODE.0=Default
 value.SELECTION_MODE.1=Select Color
-value.SELECTION_MODE.2=Alternative
-value.SELECTION_MODE.3=Disabled
+value.SELECTION_MODE.2=Versatile
+value.SELECTION_MODE.3=§cDisabled
 
 option.SUN_GLARE=Sun Glare
 option.SUN_GLARE.comment=Enables Sun Glare. 
@@ -769,20 +779,26 @@ option.SKYBOX_BRIGHTNESS.comment=Adjusts skybox brightness.
 option.VANILLA_SKYBOX=Vanilla Skybox/Sun/Moon
 option.VANILLA_SKYBOX.comment=Enables vanilla skybox which includes square sun/moon and custom resource pack skies. §e[*]§r Disable Shader Sun/Moon option if you want to use vanilla sun/moon. §c[-]§r Changing this can cause problems with some mods.
 
-option.SKY_DAY=Sky - Morning/Evening
+option.SKY_DAY=Morning/Evening - Intensity
 option.SKY_DAY.comment=Adjusts the intensity of the sky during morning and evening.
 
-option.SKY_NOON=Sky - Noon
+option.SKY_NOON=Noon - Intensity
 option.SKY_NOON.comment=Adjusts the intensity of the sky during noon.
 
-option.SKY_NIGHT=Sky - Night
+option.SKY_NIGHT=Night - Intensity
 option.SKY_NIGHT.comment=Adjusts the intensity of the sky during night.
 
-option.SKY_RAIN_DAY=Sky - Day Rain
+option.SKY_RAIN_DAY=Day Rain - Intensity
 option.SKY_RAIN_DAY.comment=Adjusts the intensity of the sky during the day when it's raining.
 
-option.SKY_RAIN_NIGHT=Sky - Night Rain
+option.SKY_RAIN_NIGHT=Night Rain - Intensity
 option.SKY_RAIN_NIGHT.comment=Adjusts the intensity of the sky during the night when it's raining.
+
+option.SKY_MULT_R=Day - Red Multiplier
+option.SKY_MULT_G=Day - Green Multiplier
+option.SKY_MULT_B=Day - Blue Multiplier
+option.SKY_MULT_I=Day - Intensity
+option.SKY_MULT_I.comment=Adjusts the intensity of the sky during morning, evening and noon.
 
 option.CLOUD_THICKNESS=Cloud Thickness
 option.CLOUD_THICKNESS.comment=Adjusts cloud thickness.
@@ -871,16 +887,6 @@ option.EMISSIVE_RECOLOR.comment=Enable this if you find lava too bright
 
 option.END_PORTAL_REWORK=End Portal Fix
 option.END_PORTAL_REWORK.comment=Re-creates the end portals to fix the missing effect with shaders. Disabling this will make the end portals and gateways broken (like most other shaders).
-
-option.COMPATIBILITY_MODE=Compatibility Mode
-option.COMPATIBILITY_MODE.comment=Changes lots of things to make the shaderpack more compatible, especially with mods. Force-disables Integrated Vanilla+ features
-
-option.RP_SUPPORT=RP Support
-option.RP_SUPPORT.comment=Decides how resource packs are handled. §bIntegrated Vanilla+:§r Auto-calculated PBR and extra effects; only works with vanilla or almost-vanilla packs. §aBasic:§r PBR is disabled, which means high fps. §dPBR:§r Specular and normal maps are used; a PBR resource pack is required, choose labPBR or SEUSPBR depending on what your PBR resource pack supports.
-value.RP_SUPPORT.1=§bIntegrated Vanilla+
-value.RP_SUPPORT.2=§aBasic
-value.RP_SUPPORT.3=§dlabPBR
-value.RP_SUPPORT.4=§dSEUS PBR
 
 option.LIGHTSHAFT_WATER_CAUSTICS=Water Light Shaft Caustics
 option.LIGHTSHAFT_WATER_CAUSTICS.comment=Uses caustics to make underwater light shafts nicer.

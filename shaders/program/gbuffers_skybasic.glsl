@@ -235,7 +235,7 @@ void main() {
 		#ifdef CLOUDS
 			vec4 cloud = DrawCloud(viewPos.xyz * 1000000.0, dither, lightCol, ambientCol, NdotU, 6);
 			float cloudMaskR = cloud.a / CLOUD_OPACITY;
-			cloudMaskR /= pow2(pow2(1.0 - exp(- (10.0 - 8.2 * rainStrengthS) * NdotU))); //duplicate 78634
+			if (NdotU > 0.025) cloudMaskR /= pow2(pow2(1.0 - exp(- (10.0 - 8.2 * rainStrengthS) * NdotU))); //duplicate 78634
 		#endif
 		
 		albedo = GetSkyColor(lightCol, NdotU, nViewPos, false);
@@ -302,6 +302,10 @@ void main() {
 		#endif
 		float starNdotU = clamp(NdotU * 3.0, 0.0, 1.0);
 		alpha = max(alpha - vanillaStars * (1.0 - starNdotU), 0.0);
+	#endif
+
+	#if MC_VERSION >= 11700
+		if (isEyeInWater == 3 && blindFactor == 0) albedo.rgb = vec3(0.1, 0.15, 0.2);
 	#endif
 
     /* DRAWBUFFERS:0 */

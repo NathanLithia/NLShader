@@ -193,6 +193,14 @@ vec3 LavaFog(vec3 color, float lViewPos) {
 	return vec3(color.rgb);
 }
 
+vec3 SnowFog(vec3 color, float lViewPos) {
+	float fog = lViewPos * 0.3;
+	fog = (1.0 - exp(-4.0 * fog * fog * fog));
+	color.rgb = mix(color.rgb, vec3(0.1, 0.15, 0.2), fog);
+
+	return vec3(color.rgb);
+}
+
 vec3 startFog(vec3 color, vec3 nViewPos, float lViewPos, vec3 worldPos, vec3 extra, float NdotU) {
 	#if defined FOG2 && !defined GBUFFER_CODING
 		if (isEyeInWater == 0) color.rgb = Fog2(color.rgb, lViewPos, worldPos);
@@ -204,6 +212,9 @@ vec3 startFog(vec3 color, vec3 nViewPos, float lViewPos, vec3 worldPos, vec3 ext
 	
 	if (isEyeInWater == 1 && blindFactor == 0) color.rgb = WaterFog(color.rgb, lViewPos, waterFog * (1.0 + eBS));
 	if (isEyeInWater == 2 && blindFactor == 0) color.rgb = LavaFog(color.rgb, lViewPos);
+	#if MC_VERSION >= 11700
+		if (isEyeInWater == 3 && blindFactor == 0) color.rgb = SnowFog(color.rgb, lViewPos);
+	#endif
 	if (blindFactor > 0.0) color.rgb = BlindFog(color.rgb, lViewPos);
 	
 	return vec3(color.rgb);

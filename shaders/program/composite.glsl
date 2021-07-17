@@ -142,7 +142,6 @@ void main() {
 
 	if (translucent.b > 0.999 && z1 > z0) {
 		water = 1.0;
-		//color.rgb = vec3(1.0, 0.0, 1.0);
 		translucent = vec3(1.0);
 	}
 
@@ -151,15 +150,11 @@ void main() {
 		viewPos /= viewPos.w;
 	#endif
 
-	#ifdef SQUARE_BLUR
-		#include "/lib/post/squareBlur.glsl"
-	#endif
-
 	#ifdef WATER_REFRACT
 		if (water > 0.5) {
 			vec3 worldPos = ToWorld(viewPos.xyz);
 			vec3 refractPos = worldPos.xyz + cameraPosition.xyz;
-			refractPos *= 0.01;
+			refractPos *= 0.005;
 			float refractSpeed = 0.0035 * WATER_SPEED;
 			vec2 refractPos2 = refractPos.xz + refractPos.y * 0.5 + refractSpeed * frametime;
 
