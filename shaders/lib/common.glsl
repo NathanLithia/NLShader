@@ -60,7 +60,7 @@ Complementary Shaders by EminGT, based on BSL Shaders by Capt Tatsu
 //#define BLURRY_START
 //#define PARTICLE_VISIBILITY
   #define HAND_BLOOM_REDUCTION
-//#define LAVA_VISIBILITY
+  #define LAVA_VISIBILITY
 //#define GLOWING_DEBRIS
 //#define GLOWING_REDSTONE_BLOCK
 //#define GLOWING_LAPIS_BLOCK
@@ -193,7 +193,7 @@ Complementary Shaders by EminGT, based on BSL Shaders by Capt Tatsu
   #define SCATTERING_LEAVES 0.50 //[0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
   #define SCATTERING_FOLIAGE 0.80 //[0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
   const float shadowMapBias = 1.0 - 25.6 / shadowDistance;
-//#define COLORED_SHADOWS
+  #define COLORED_SHADOWS
 //#define CLOUD_SHADOW
 //#define NO_FOLIAGE_SHADOWS
 //#define PIXEL_SHADOWS
@@ -297,7 +297,7 @@ Complementary Shaders by EminGT, based on BSL Shaders by Capt Tatsu
 
   #define ENDER_NEBULA
   #define AURORA
-  #define ROUND_SUN_MOON
+//#define ROUND_SUN_MOON
 //#define VANILLA_SKYBOX
   #define SKYBOX_BRIGHTNESS 2.00 //[0.01 0.02 0.03 0.05 0.07 0.10 0.15 0.20 0.25 0.35 0.40 0.45 0.50 0.60 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00 3.25 3.50 3.75 4.00]
   
