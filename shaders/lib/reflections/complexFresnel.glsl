@@ -26,18 +26,18 @@ vec3 ComplexFresnel(float fresnel, float f0) {
     int metalidx = int(f0 * 255.0);
     vec3 k = GetK(metalidx);
     vec3 n = GetN(metalidx);
-    float f = 1.0 - fresnel;
+    float invFresnel = 1.0 - fresnel;
 
     vec3 k2 = k * k;
     vec3 n2 = n * n;
-    float f2 = f * f;
+    float invFresnel2 = invFresnel * invFresnel;
 
-    vec3 rs_num = n2 + k2 - 2 * n * f + f2;
-    vec3 rs_den = n2 + k2 + 2 * n * f + f2;
+    vec3 rs_num = n2 + k2 - 2 * n * invFresnel + invFresnel2;
+    vec3 rs_den = n2 + k2 + 2 * n * invFresnel + invFresnel2;
     vec3 rs = rs_num / rs_den;
      
-    vec3 rp_num = (n2 + k2) * f2 - 2 * n * f + 1;
-    vec3 rp_den = (n2 + k2) * f2 + 2 * n * f + 1;
+    vec3 rp_num = (n2 + k2) * invFresnel2 - 2 * n * invFresnel + 1;
+    vec3 rp_den = (n2 + k2) * invFresnel2 + 2 * n * invFresnel + 1;
     vec3 rp = rp_num / rp_den;
     
     vec3 fresnel3 = clamp(0.5 * (rs + rp), vec3(0.0), vec3(1.0));

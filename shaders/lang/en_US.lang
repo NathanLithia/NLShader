@@ -576,10 +576,15 @@ value.shadowMapResolution.8192=Extreme (8192)
 option.shadowDistance=Shadow Distance
 option.shadowDistance.comment=Adjusts how far the shadows will be rendered. §c[-]§r Heavy performance impact.
 value.shadowDistance.64.0=4 Chunks
+value.shadowDistance.80.0=5 Chunks
 value.shadowDistance.96.0=6 Chunks
+value.shadowDistance.112.0=7 Chunks
 value.shadowDistance.128.0=8 Chunks
+value.shadowDistance.160.0=10 Chunks
 value.shadowDistance.192.0=12 Chunks
+value.shadowDistance.224.0=14 Chunks
 value.shadowDistance.256.0=16 Chunks
+value.shadowDistance.320.0=20 Chunks
 value.shadowDistance.384.0=24 Chunks
 value.shadowDistance.512.0=32 Chunks
 value.shadowDistance.768.0=48 Chunks
@@ -895,7 +900,7 @@ option.SMOKEY_WATER_LIGHTSHAFTS=Smoke-y Water Light Shafts
 option.SMOKEY_WATER_LIGHTSHAFTS.comment=Adds volumetric smoke to the light shafts when the player is underwater.
 
 option.PARTICLE_VISIBILITY=Close-up Particle Reduction
-option.PARTICLE_VISIBILITY.comment=Improves visibility by reducing the opaqueness of very close particles. §c[-]§r Doesn't work on all particles
+option.PARTICLE_VISIBILITY.comment=Improves visibility by reducing the opaqueness of very close particles. §c[-]§r Doesn't work on all particles. §c[-]§r May cause major issues with some mods/plugins/datapacks.
 
 option.LAVA_VISIBILITY=Better Visibility Under Lava
 option.LAVA_VISIBILITY.comment=Improves visibility under lava by reducing the lava fog.

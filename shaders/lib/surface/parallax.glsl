@@ -53,13 +53,17 @@ float GetParallaxShadow(float parallaxFade, vec2 coord, vec3 lightVec, mat3 tbn,
             float step = 1.28 / PARALLAX_QUALITY;
             float height = normalDepth;
 
+            #ifdef PARALLAX
+                int parallaxD32 = PARALLAX_QUALITY / 32;
+            #endif
+
             for(int i = 0; i < PARALLAX_QUALITY / 4; i++) {
                 float currentHeight = height + parallaxdir.z * step * i;
                 vec2 parallaxCoord = fract(newvTexCoord + parallaxdir.xy * i * step) * 
                                      vTexCoordAM.pq + vTexCoordAM.st;
                 float offsetHeight = texture2DGradARB(normals, parallaxCoord, dcdx, dcdy).a;
                 #ifdef PARALLAX
-                    if (i == PARALLAX_QUALITY / 32) height = parallaxDepth;
+                    if (i == parallaxD32) height = parallaxDepth;
                 #endif
                 parallaxshadow *= clamp(1.0 - (offsetHeight - currentHeight) * 40.0, 0.0, 1.0);
                 if (parallaxshadow < 0.01) break;
